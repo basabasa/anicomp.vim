@@ -51,21 +51,7 @@ function! anicomp#ScrapingAnimeList()
     call writefile(s:animes, s:outputFile)
 endfunction
 
-function! anicomp#Complete(findstart, base)
-    if a:findstart
-        let prevPos = col('.') - 1
-        let beforeStr = getline('.')[0:prevPos]
-        let lastWord = matchstr(beforeStr, '\m\(\k\+\)$')
-        let prefixLen = len(lastWord)
-        let startPos = prevPos - prefixLen
-        return prefixLen <= 0 ? -1 : startPos
-    endif
-
-    let items = filter(s:animes, 'stridx(v:val, a:base) == 0')
-    return items
-endfunction
-
-function! anicomp#CompleteStart()
+function! anicomp#Complete()
     if len(s:animes) == 0
         if filereadable(s:outputFile)
             let data = readfile(s:outputFile)
@@ -73,11 +59,19 @@ function! anicomp#CompleteStart()
                 call add(s:animes, val)
             endfor
         else
-            anicomp#ScrapingAnimeList()
+            call anicomp#ScrapingAnimeList()
         endif
     endif
 
-    set completefunc=anicomp#Complete
+    let pos = col('.') 
+    let beforeStr = getline('.')[0:pos]
+    let lastWord = matchstr(beforeStr, '\m\(\k\+\)$')
+    let prefixLen = len(lastWord)
+    let startPos = pos - prefixLen
+    let startcol = prefixLen <= 0 ? -1 : startPos
+    let items = filter(s:animes, 'stridx(v:val, lastWord) == 0')
+    call complete(startcol, items)
+    return ''
 endfunction
 
 let &cpo = s:save_cpo
