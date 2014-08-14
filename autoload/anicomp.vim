@@ -29,7 +29,11 @@ function! anicomp#CutOutForAnimeWord(word)
 endfunction
 
 function! anicomp#ScrapingAnimeList()
+    echon "Downloading anime list"
+
     for url in s:urls
+        echon "."
+
         let res = webapi#http#get(url)
         if res.status !~ '^20'
             continue
@@ -49,6 +53,8 @@ function! anicomp#ScrapingAnimeList()
 
     call uniq(sort(s:animes))
     call writefile(s:animes, s:outputFile)
+
+    echo "Download anime list is completed"
 endfunction
 
 function! anicomp#Complete()
